@@ -1,0 +1,31 @@
+<VirtualHost *:80>
+    Define DOCUMENT_ROOT /home/web/{{ item }}/www
+    Define PHP_PORT 9000
+    Define PHP_PROXY_URL fcgi://127.0.0.1:${PHP_PORT}
+
+    DocumentRoot ${DOCUMENT_ROOT}
+    ServerName {{ item }}
+    ServerAlias www.{{ item }}
+
+    ErrorLog /var/log/apache2/{{ item }}.error.log
+    CustomLog /var/log/apache2/{{ item }}.access.log common
+
+    AcceptPathInfo on
+
+    DirectoryIndex index.html index.htm index.php
+
+    <Directory ${DOCUMENT_ROOT}>
+        AllowOverride All
+        Require all granted
+        RewriteRule . -
+    </Directory>
+
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} ^(.*?\.php)(/.*)?$
+    RewriteCond ${DOCUMENT_ROOT}%1 -f
+    RewriteRule ^.*\.php ${PHP_PROXY_URL}${DOCUMENT_ROOT}%1 [P,L]
+
+    <Proxy ${PHP_PROXY_URL}>
+        ProxySet timeout=3600 retry=0
+    </Proxy>
+</VirtualHost>

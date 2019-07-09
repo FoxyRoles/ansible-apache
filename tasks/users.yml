@@ -1,0 +1,20 @@
+---
+
+- name: apache2 group present
+  group: name={{ apache_group }} gid={{ apache_gid }} state=present
+
+- name: apache2 user present
+  user: name={{ apache_user }} uid={{ apache_uid }} group={{ apache_group }} shell=/bin/bash state=present
+
+- name: Ensure user home directory present
+  file: path=/home/{{ apache_user }} state=directory owner={{ apache_user }} group={{ apache_group }}
+
+- name: Set apache2 user
+  lineinfile: dest=/etc/apache2/envvars regexp="^export APACHE_RUN_USER=" line="export APACHE_RUN_USER={{ apache_user }}"
+  notify:
+   - restart apache2
+
+- name: Set apache2 group
+  lineinfile: dest=/etc/apache2/envvars regexp="^export APACHE_RUN_GROUP=" line="export APACHE_RUN_GROUP={{ apache_group }}"
+  notify:
+   - restart apache2

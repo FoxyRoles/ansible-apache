@@ -1,0 +1,21 @@
+---
+
+- name: Add apache2 PPA
+  apt_repository: repo='ppa:ondrej/apache2' state=present update_cache=True
+
+- name: apache2 is installed
+  apt: pkg=apache2 state=present
+
+- name: apache2 is running
+  service: name=apache2 state=running enabled=yes
+
+- name: enable needed modules
+  apache2_module: name={{ item }} state=present
+  with_items:
+   - rewrite
+   - proxy
+   - proxy_fcgi
+   - mpm_event
+   - ssl
+  notify:
+   - restart apache2

@@ -1,0 +1,7 @@
+---
+
+apache_mpm: event
+apache_user: web
+apache_group: web
+apache_uid: 1001
+apache_gid: 1001
