@@ -1,23 +1,36 @@
 ---
 
 - name: Create zones
-  template: src=zone.conf.j2 dest="/etc/apache2/sites-available/{{ item }}.conf"
-  with_items: zones
-  when: zones is defined
+  template:
+    src: zone.conf.j2
+    dest: "/etc/apache2/sites-available/{{ item }}.conf"
+  with_items: apache_zones
+  when: apache_zones is defined
 
 - name: Link zones to sites-neabled
-  file: src="../sites-available/{{ item }}.conf" dest="/etc/apache2/sites-enabled/100-{{ item }}.conf" state=link
-  with_items: zones
-  when: zones is defined
+  file:
+    src: "../sites-available/{{ item }}.conf"
+    dest: "/etc/apache2/sites-enabled/100-{{ item }}.conf"
+    state: link
+  with_items: apache_zones
+  when: apache_zones is defined
   notify:
    - restart apache2
 
 - name: Create home directory for zone
-  file: path=/home/{{ apache_user }}/{{ item }} state=directory owner={{ apache_user }} group={{ apache_group }}
-  with_items: zones
-  when: zones is defined
+  file:
+    path: "/home/{{ apache_user }}/{{ item }}"
+    state: directory
+    owner: "{{ apache_user }}"
+    group: "{{ apache_group }}"
+  with_items: apache_zones
+  when: apache_zones is defined
 
 - name: Create www directory for zone
-  file: path=/home/{{ apache_user }}/{{ item }}/www state=directory owner={{ apache_user }} group={{ apache_group }}
-  with_items: zones
-  when: zones is defined
+  file:
+    path: "/home/{{ apache_user }}/{{ item }}/www"
+    state: directory
+    owner: "{{ apache_user }}"
+    group: "{{ apache_group }}"
+  with_items: apache_zones
+  when: apache_zones is defined

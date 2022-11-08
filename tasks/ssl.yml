@@ -1,9 +1,24 @@
 ---
 
 - name: Configure global SSL options
-  copy: src=ssl.conf dest=/etc/apache2/mods-available/ssl.conf
+  copy:
+    src: ssl.conf
+    dest: /etc/apache2/mods-available/ssl.conf
   notify:
    - restart apache2
 
 - name: Ensure SSL directory for certs present
-  file: path=/etc/apache2/ssl state=directory mode=0700
+  file:
+    path: /etc/apache2/ssl
+    state: directory
+    mode: 0700
+
+- name: Ensure Diffie Hellman Ephemeral Parameters file is generated
+  command: openssl dhparam -out /etc/apache2/ssl/dhparam4096.pem 4096
+  args:
+    creates: /etc/apache2/ssl/dhparam4096.pem
+
+- name: Ensure proper permissions of dhparam4096.pem
+  file:
+    path: /etc/apache2/ssl/dhparam4096.pem
+    mode: 0600
